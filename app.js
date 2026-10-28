@@ -347,6 +347,7 @@ function toggleHabit(id) {
     delete h.completions[today];
   } else {
     h.completions[today] = true;
+    buzz();
     const streak = computeStreak(h.completions);
     if ([7, 30, 100, 365].includes(streak)) {
       celebrate([`${streak} day streak!! you're a star 🌟`]);
@@ -528,6 +529,24 @@ function escapeHtml(s) {
   }[c]));
 }
 
+function buzz() {
+  if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+}
+
+function setupServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  // auto-update: reload once when a NEW service worker takes over (skips the first install)
+  if (navigator.serviceWorker.controller) {
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+  }
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
 /* ---------- boot ---------- */
 function boot() {
   spawnSparkles();
@@ -541,10 +560,7 @@ function boot() {
   }
   setTimeout(reveal, 600); // safety net so it never stays blank
 
-  // service worker (offline + installable)
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
+  setupServiceWorker();
 
   // theme picker containers
   $("#ob-themes").setAttribute("data-theme-picker", "");
@@ -618,12 +634,30 @@ function boot() {
     }, { once: true });
   }
 
-  // reminder polling
+  // reminders + nudge refresh (only re-render when something actually changes)
+  let lastDay = todayKey();
+  function nudgeSig() {
+    const today = todayKey();
+    return state.habits.map((h) => {
+      const due = h.reminder && !h.completions[today] && isPastReminder(h.reminder);
+      return h.id + (due ? ":1" : ":0");
+    }).join("|");
+  }
+  let lastNudge = nudgeSig();
   checkReminders();
   setInterval(() => {
     checkReminders();
-    renderHabits(); // refresh "don't forget" nudges
-  }, 60000);
+    const t = todayKey();
+    const n = nudgeSig();
+    if (t !== lastDay) {
+      lastDay = t;
+      lastNudge = n;
+      renderAll(); // new day: refresh date, streaks, progress
+    } else if (n !== lastNudge) {
+      lastNudge = n;
+      renderHabits(); // refresh "don't forget" nudges
+    }
+  }, 30000);
 }
 
 document.addEventListener("DOMContentLoaded", boot);

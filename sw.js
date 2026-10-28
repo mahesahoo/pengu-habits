@@ -1,4 +1,4 @@
-const CACHE = "pengu-v3";
+const CACHE = "pengu-v4";
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (e) => {
