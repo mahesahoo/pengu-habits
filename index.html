@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" id="theme-color" content="#ffd6e8" />
+  <meta name="description" content="Pengu — your soft habit buddy. A cozy little habit tracker." />
+  <title>Pengu · soft habit buddy</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Sparkle background layer -->
+  <div id="sparkles" aria-hidden="true"></div>
+
+  <!-- ============ ONBOARDING ============ -->
+  <div id="onboarding" class="screen">
+    <div class="ob-card">
+      <div class="ob-mascot">🐧</div>
+      <h1 class="ob-title">hi, i'm Pengu <span class="caveat">(your new buddy)</span></h1>
+      <p class="ob-sub">let's make your little habits feel lovely. ✨</p>
+
+      <label class="field">
+        <span class="field-label">what should i call you?</span>
+        <input id="ob-name" type="text" placeholder="your name" maxlength="20" autocomplete="off" />
+      </label>
+
+      <div class="field">
+        <span class="field-label">pick a vibe</span>
+        <div class="theme-grid" id="ob-themes"></div>
+      </div>
+
+      <button id="ob-start" class="btn-primary">let's go 🎀</button>
+    </div>
+  </div>
+
+  <!-- ============ MAIN APP ============ -->
+  <div id="app" class="screen hidden">
+    <!-- Header -->
+    <header class="header">
+      <div class="mascot-wrap">
+        <div class="mascot" id="mascot">🐧</div>
+        <span class="sparkle s1">✦</span>
+        <span class="sparkle s2">✧</span>
+        <span class="sparkle s3">✦</span>
+      </div>
+      <div class="header-text">
+        <h1 class="greeting" id="greeting">good morning</h1>
+        <p class="date" id="date-line"></p>
+      </div>
+      <button class="icon-btn" id="btn-settings" aria-label="Settings">🎀</button>
+    </header>
+
+    <!-- Progress -->
+    <section class="progress-card">
+      <div class="ring" id="ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52" />
+          <circle class="ring-fg" id="ring-fg" cx="60" cy="60" r="52" />
+        </svg>
+        <div class="ring-center">
+          <span class="ring-num" id="ring-num">0/0</span>
+          <span class="ring-label">done today</span>
+        </div>
+      </div>
+      <div class="progress-side">
+        <p class="progress-msg" id="progress-msg">let's start with one tiny thing 🌷</p>
+        <p class="progress-sub" id="progress-sub"></p>
+      </div>
+    </section>
+
+    <!-- Today's habits -->
+    <section class="habits-section">
+      <h2 class="section-title">today's little list</h2>
+      <div id="habit-list" class="habit-list"></div>
+      <div id="empty-state" class="empty hidden">
+        <div class="empty-emoji">🎀</div>
+        <p>no habits yet</p>
+        <span>tap the + to add your first one</span>
+      </div>
+    </section>
+
+    <!-- Bottom nav -->
+    <nav class="tabbar">
+      <button class="tab active" data-tab="today">🌸<span>today</span></button>
+      <button class="tab" data-tab="week">🌙<span>week</span></button>
+      <button class="fab" id="btn-add" aria-label="Add habit">+</button>
+      <button class="tab" data-tab="stats">✨<span>stats</span></button>
+      <button class="tab" data-tab="settings">🎀<span>me</span></button>
+    </nav>
+
+    <!-- Week tab -->
+    <section id="tab-week" class="tab-panel hidden">
+      <h2 class="section-title">this month</h2>
+      <div class="month-grid" id="month-grid"></div>
+      <div class="week-strip" id="week-strip"></div>
+    </section>
+
+    <!-- Stats tab -->
+    <section id="tab-stats" class="tab-panel hidden">
+      <h2 class="section-title">a little recap</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+    </section>
+
+    <!-- Settings tab -->
+    <section id="tab-settings" class="tab-panel hidden">
+      <h2 class="section-title">all about you</h2>
+      <div class="settings-list">
+        <label class="field">
+          <span class="field-label">your name</span>
+          <input id="set-name" type="text" maxlength="20" autocomplete="off" />
+        </label>
+        <div class="field">
+          <span class="field-label">vibe</span>
+          <div class="theme-grid" id="set-themes"></div>
+        </div>
+        <button class="btn-soft" id="btn-export">download my data 💾</button>
+        <button class="btn-soft" id="btn-import">restore from backup 📥</button>
+        <input type="file" id="import-file" accept=".json" hidden />
+        <button class="btn-danger" id="btn-reset">start over 🌱</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ HABIT MODAL ============ -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <h2 class="modal-title" id="modal-title">new habit</h2>
+      <input type="hidden" id="habit-id" />
+
+      <label class="field">
+        <span class="field-label">what's the habit?</span>
+        <input id="habit-name" type="text" placeholder="drink water" maxlength="40" autocomplete="off" />
+      </label>
+
+      <div class="field">
+        <span class="field-label">pick an emoji</span>
+        <div class="emoji-grid" id="emoji-grid"></div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">pick a color</span>
+        <div class="color-grid" id="color-grid"></div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">gentle reminder <span class="hint">(optional)</span></span>
+        <input id="habit-reminder" type="time" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-soft" id="modal-cancel">cancel</button>
+        <button class="btn-danger" id="modal-delete" hidden>delete</button>
+        <button class="btn-primary" id="modal-save">save 💖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Confetti container -->
+  <div id="confetti" aria-hidden="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "Pengu — soft habit buddy",
+  "short_name": "Pengu",
+  "description": "A cozy little habit tracker with a soft girl aesthetic.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff3f7",
+  "theme_color": "#ffb7c5",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
