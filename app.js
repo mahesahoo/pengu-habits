@@ -532,6 +532,15 @@ function escapeHtml(s) {
 function boot() {
   spawnSparkles();
 
+  // reveal the app once fonts are ready (avoids the font-swap flash)
+  function reveal() { document.body.classList.add("fonts-ready"); }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(reveal).catch(reveal);
+  } else {
+    reveal();
+  }
+  setTimeout(reveal, 600); // safety net so it never stays blank
+
   // service worker (offline + installable)
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
